@@ -1,10 +1,10 @@
 #
 # Copyright (c) 2015, Intel Corporation
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright notice,
 #    this list of conditions and the following disclaimer.
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 # 3. Neither the name of the Intel Corporation nor the names of its
 #    contributors may be used to endorse or promote products derived from this
 #    software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -27,7 +27,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-DEFAULT_SOC = quark_d2000
+THIS_DIR          := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+OUT               := $(abspath $(THIS_DIR))
+
+IAMCU_TOOLCHAIN_DIR = $(dir $(CROSS_COMPILE))
+BUILD = release
+DEFAULT_SOC = quark_se
 SUPPORTED_SOCS = quark_se \
                  quark_d2000
 
@@ -55,4 +60,23 @@ help:
 	$(info By default SOC=$(DEFAULT_SOC).)
 	$(info List of supported values for SOC: $(SUPPORTED_SOCS))
 
-all: libqmsi rom
+#all: libqmsi rom
+
+LIB = $(OUT)/qmsi1.a
+
+$(LIB): $(OUT)/lib/libqmsi.a
+	$(AT)cp $< $@
+
+$(OUT)/lib/libqmsi.a:
+	$(AT)cp -a $(THIS_DIR)/* $(OUT)
+	$(AT)BUILD=$(BUILD) \
+	     IAMCU_TOOLCHAIN_DIR=$(IAMCU_TOOLCHAIN_DIR) \
+	     SOC=$(SOC) \
+		$(MAKE) -C $(OUT) libqmsi
+	$(AT)cp -rf $(OUT)/drivers/include/* $(OUT)/include/
+	$(AT)cp -rf $(OUT)/soc/quark_se/include/* $(OUT)/include/
+	$(AT)install -CD $(OUT)/build/$(BUILD)/$(SOC)/libqmsi/lib/libqmsi.a $@
+
+lib: $(LIB)
+
+all: lib

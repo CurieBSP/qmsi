@@ -88,10 +88,11 @@ LIBQMSI_LIB_DIR = $(LIBQMSI_DIR)/lib
 LIBQMSI_INCLUDE_DIR = $(LIBQMSI_DIR)/include
 
 ### Flags
-CFLAGS += -std=c90 -Wall -Wextra -Werror -Wno-unused-parameter
+CFLAGS += -std=c99 -Wall -Wextra -Werror -Wno-unused-parameter
 CFLAGS += -fmessage-length=0
 CFLAGS += -I$(BASE_DIR)/include
 CFLAGS += -fno-asynchronous-unwind-tables
+CFLAGS += -fno-builtin
 LDFLAGS += -nostdlib
 LDLIBS += -lc -lnosys -lsoftfp -lgcc
 
